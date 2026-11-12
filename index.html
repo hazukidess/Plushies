@@ -52,6 +52,9 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .name{font-family:var(--display);font-weight:600;font-size:18px;line-height:1.1;word-break:break-word}
 .cmd{font-family:var(--mono);font-size:12.5px;color:var(--muted);background:var(--tag);border-radius:8px;padding:3px 8px;max-width:100%;overflow-wrap:anywhere}
 .card.copied .cmd{background:var(--accent);color:var(--accent-ink)}
+.card.taken img{opacity:.45;filter:grayscale(.6)}
+.taken-tag{position:absolute;top:10px;right:10px;background:var(--ink);color:var(--bg);font-weight:800;font-size:12px;border-radius:999px;padding:2px 9px;letter-spacing:.4px;text-transform:uppercase}
+.updated{flex-basis:100%;font-size:13.5px;font-weight:700;color:var(--muted);margin-top:-4px}
 .badge{position:absolute;top:10px;left:10px;background:var(--new);color:#2b1d00;font-weight:800;font-size:12px;border-radius:999px;padding:2px 9px;letter-spacing:.4px;text-transform:uppercase}
 .empty{padding:40px 0;text-align:center;color:var(--muted);font-weight:800}
 footer{margin-top:28px;color:var(--muted);font-weight:700;font-size:14.5px;display:grid;gap:6px}
@@ -79,7 +82,9 @@ footer{margin-top:28px;color:var(--muted);font-weight:700;font-size:14.5px;displ
       <input id="q" type="search" placeholder="Search a plushie" autocomplete="off">
     </label>
     <button class="chip" id="newOnly" aria-pressed="false">New ones</button>
+    <button class="chip" id="freeOnly" aria-pressed="false" hidden>Free right now</button>
     <span class="count" id="count"></span>
+    <div class="updated" id="updated" hidden></div>
   </div>
 
   <div class="grid" id="grid"></div>
@@ -102,7 +107,8 @@ const pretty = n => n.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 const grid = document.getElementById('grid'), q = document.getElementById('q'),
       count = document.getElementById('count'), empty = document.getElementById('empty'),
       newBtn = document.getElementById('newOnly'), toast = document.getElementById('toast');
-let newOnly = false, toastT;
+let newOnly = false, freeOnly = false, taken = null, toastT;
+const freeBtn = document.getElementById('freeOnly'), updated = document.getElementById('updated');
 
 const cards = PLUSHIES.map(p => {
   const b = document.createElement('button');
@@ -112,7 +118,8 @@ const cards = PLUSHIES.map(p => {
   b.querySelector('img').alt = pretty(p.n) + ' plushie';
   b.querySelector('.name').textContent = pretty(p.n);
   b.querySelector('.cmd').textContent = '!claim ' + p.n;
-  b.addEventListener('click', () => copy(b, '!claim ' + p.n));
+  b.dataset.cmd = '!claim ' + p.n;
+  b.addEventListener('click', () => copy(b, b.dataset.cmd));
   grid.appendChild(b);
   return { el: b, p };
 });
@@ -131,7 +138,8 @@ function render() {
   const term = q.value.trim().toLowerCase().replace(/^!(claim|buyplush|snipe)\s+/, '');
   let shown = 0;
   for (const c of cards) {
-    const ok = (!term || c.p.n.toLowerCase().includes(term) || pretty(c.p.n).toLowerCase().includes(term)) && (!newOnly || isNew(c.p));
+    const ok = (!term || c.p.n.toLowerCase().includes(term) || pretty(c.p.n).toLowerCase().includes(term)) && (!newOnly || isNew(c.p))
+      && (!freeOnly || !taken || !taken.has(c.p.n.toLowerCase()));
     c.el.hidden = !ok; if (ok) shown++;
   }
   count.textContent = shown === cards.length ? cards.length + ' plushies' : shown + ' of ' + cards.length;
@@ -140,6 +148,36 @@ function render() {
 q.addEventListener('input', render);
 newBtn.addEventListener('click', () => { newOnly = !newOnly; newBtn.setAttribute('aria-pressed', newOnly); render(); });
 render();
+
+// Which plushies are taken: status.json is written by the stream bot and uploaded next to this page.
+// It only lists plushie names, never who has them.
+function ago(ms) {
+  const m = Math.round(ms / 60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return m + ' min ago';
+  const h = Math.round(m / 60);
+  if (h < 48) return h + (h === 1 ? ' hour ago' : ' hours ago');
+  return Math.round(h / 24) + ' days ago';
+}
+fetch('status.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(st => {
+  if (!st || !Array.isArray(st.taken)) return;
+  taken = new Set(st.taken.map(n => String(n).toLowerCase()));
+  for (const c of cards) {
+    if (!taken.has(c.p.n.toLowerCase())) continue;
+    c.el.classList.add('taken');
+    const t = document.createElement('span'); t.className = 'taken-tag'; t.textContent = 'Taken'; c.el.appendChild(t);
+    c.el.dataset.cmd = '!snipe ' + c.p.n;
+    c.el.querySelector('.cmd').textContent = c.el.dataset.cmd;
+  }
+  freeBtn.hidden = false;
+  const when = Date.parse(st.updated);
+  if (!isNaN(when)) {
+    updated.textContent = 'Taken / free as of ' + new Date(when).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) + ' (' + ago(Date.now() - when) + '). Things change fast, so check with !plushies in chat.';
+    updated.hidden = false;
+  }
+  render();
+}).catch(() => {});
+freeBtn.addEventListener('click', () => { freeOnly = !freeOnly; freeBtn.setAttribute('aria-pressed', freeOnly); render(); });
 </script>
 
 </body>

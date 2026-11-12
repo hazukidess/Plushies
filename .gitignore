@@ -1,3 +1,4 @@
 p/
 *.sh
+*.ps1
 upload_log.txt

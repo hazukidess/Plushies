@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>How the Plushie Room Works</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800&display=swap">
+<style>
+html{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}
+/* Layout: same toy-shop look as the collection page. A guide plushie talks you through the room, top to bottom. */
+:root{
+  --bg:#eef5ff; --shelf:#ffffff; --ink:#1f2a44; --muted:#5d6b88; --line:#d6e2f5;
+  --accent:#ff5c8a; --accent-ink:#ffffff; --sky:#3d8bff; --tag:#fff2f6; --new:#ffb800;
+  --t1:#2e9d6a; --t1bg:#ddf5e8; --t2:#8a5cf0; --t2bg:#efe8ff; --t3:#c98a10; --t3bg:#fff1d6; --no:#d9534f; --nobg:#fde3e1;
+  --tw:#9146ff; --yt:#ff3b3b;
+  --display:'Fredoka','Nunito',system-ui,sans-serif; --body:'Nunito',system-ui,sans-serif;
+  --mono:ui-monospace,'Cascadia Mono',Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1628; --shelf:#18223a; --ink:#eaf0ff; --muted:#9fb0d2; --line:#2a3758;
+  --accent:#ff6f98; --accent-ink:#1a0d14; --sky:#78acff; --tag:#2a1f33; --new:#ffc93d;
+  --t1:#5fd39b; --t1bg:#163527; --t2:#b79bff; --t2bg:#28204a; --t3:#f0b84a; --t3bg:#3a2c10; --no:#ff8a85; --nobg:#3d1a1a;
+  --tw:#b18bff; --yt:#ff7a7a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1628; --shelf:#18223a; --ink:#eaf0ff; --muted:#9fb0d2; --line:#2a3758;
+  --accent:#ff6f98; --accent-ink:#1a0d14; --sky:#78acff; --tag:#2a1f33; --new:#ffc93d;
+  --t1:#5fd39b; --t1bg:#163527; --t2:#b79bff; --t2bg:#28204a; --t3:#f0b84a; --t3bg:#3a2c10; --no:#ff8a85; --nobg:#3d1a1a;
+  --tw:#b18bff; --yt:#ff7a7a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:1060px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px;display:grid;gap:22px}
+h1,h2{font-family:var(--display);margin:0;text-wrap:balance}
+h1{font-weight:700;font-size:clamp(30px,5.5vw,48px);line-height:1.05;letter-spacing:-.5px}
+h1 span{color:var(--accent)}
+h2{font-weight:600;font-size:clamp(21px,3vw,26px);line-height:1.15;display:flex;gap:10px;align-items:center}
+h2 .n{flex:none;display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--ink);color:var(--bg);font-size:17px}
+p{margin:0}
+code{font-family:var(--mono);font-size:.9em;background:var(--tag);color:var(--accent);padding:1px 6px;border-radius:6px;white-space:nowrap}
+.muted{color:var(--muted);font-weight:700}
+.guide{display:flex;gap:16px;align-items:flex-end}
+.guide img{width:110px;flex:none}
+.bubble{position:relative;background:var(--shelf);border:2px solid var(--ink);border-radius:22px;padding:16px 20px;margin-bottom:26px;min-width:0}
+.bubble:before{content:"";position:absolute;left:-20px;bottom:18px;border:10px solid transparent;border-right:18px solid var(--ink)}
+.bubble:after{content:"";position:absolute;left:-14px;bottom:21px;border:7px solid transparent;border-right:14px solid var(--shelf)}
+.bubble p{font-weight:700;color:var(--muted);margin-top:6px}
+section{background:var(--shelf);border:1.5px solid var(--line);border-radius:22px;padding:20px;display:grid;gap:14px;min-width:0}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.card{border:2px solid var(--line);border-radius:18px;padding:14px;display:grid;gap:6px;align-content:start;min-width:0}
+.card b{font-family:var(--display);font-weight:600;font-size:18px;line-height:1.2}
+.card p{font-weight:700;color:var(--muted);font-size:15px}
+.card.tw{border-color:color-mix(in srgb,var(--tw) 45%,var(--line))}
+.card.yt{border-color:color-mix(in srgb,var(--yt) 45%,var(--line))}
+.plat{font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;border-radius:999px;padding:2px 9px;justify-self:start;color:#fff}
+.plat.tw{background:var(--tw)} .plat.yt{background:var(--yt)} .plat.both{background:var(--ink);color:var(--bg)}
+/* seats bar */
+.seats{display:grid;grid-template-columns:repeat(34,1fr);gap:4px}
+.seat{aspect-ratio:1;border-radius:4px;max-width:100%}
+.seat.tw{background:var(--tw)} .seat.yt{background:var(--yt)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 20px;font-weight:800}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:6px}
+/* tiers */
+.tiers{display:grid;gap:10px}
+.tier{display:grid;grid-template-columns:56px 1fr auto;gap:14px;align-items:center;border-radius:18px;padding:12px 16px;border:2px solid}
+.tier .rank{font-family:var(--display);font-weight:700;font-size:30px;text-align:center}
+.tier b{font-family:var(--display);font-weight:600;font-size:19px}
+.tier p{font-weight:700;font-size:15px;color:var(--muted)}
+.tier img{width:58px}
+.t1{background:var(--t1bg);border-color:var(--t1)} .t1 .rank{color:var(--t1)}
+.t2{background:var(--t2bg);border-color:var(--t2)} .t2 .rank{color:var(--t2)}
+.t3{background:var(--t3bg);border-color:var(--t3)} .t3 .rank{color:var(--t3)}
+.rule{border-left:4px solid var(--accent);padding:6px 12px;font-weight:700}
+/* flow */
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;counter-reset:s}
+.step{position:relative;border-radius:18px;padding:12px;border:2px solid var(--line);display:grid;gap:6px;justify-items:center;text-align:center;align-content:start;min-width:0}
+.step img{width:76px}
+.step .duo{display:flex;gap:4px;justify-content:center}
+.step .duo img{width:62px}
+.step p{font-weight:700;font-size:14.5px;line-height:1.35}
+.step small{display:block;color:var(--muted);font-weight:700;font-size:13px;margin-top:2px}
+.day{font-size:12.5px;font-weight:800;color:var(--bg);background:var(--ink);border-radius:999px;padding:2px 10px}
+.step.good{background:var(--t1bg);border-color:var(--t1)} .step.wait{background:var(--t3bg);border-color:var(--t3)} .step.bad{background:var(--nobg);border-color:var(--no)} .step.buy{background:var(--t2bg);border-color:var(--t2)}
+.dim{opacity:.35;filter:grayscale(1)}
+.cmds{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}
+.cmds div{border:2px solid var(--line);border-radius:14px;padding:10px 12px;font-weight:700;font-size:14.5px;color:var(--muted);min-width:0}
+.cmds code{font-size:15px}
+.cmds span{display:block;margin-top:2px}
+.back{justify-self:start;font-weight:800;color:var(--sky);text-decoration:none;border:2px solid var(--line);background:var(--shelf);border-radius:999px;padding:6px 14px}
+.back:hover{border-color:var(--sky)}
+.back:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+footer{color:var(--muted);font-weight:700;font-size:14px;text-align:center}
+@media (max-width:560px){ .seats{grid-template-columns:repeat(17,1fr)} .tier{grid-template-columns:40px 1fr} .tier img{display:none} .guide img{width:76px} }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <a class="back" href="./">← Back to the plushie collection</a>
+  <div class="guide">
+    <img src="thumbs/arona.png" alt="Arona plushie">
+    <div class="bubble">
+      <h1>How the Plushie <span>Room</span> works</h1>
+      <p>Hi, I'm Arona! Here's how you get a plushie, who gets a seat in the room, and what happens when it's full.</p>
+    </div>
+  </div>
+
+  <section>
+    <h2><span class="n">1</span>Getting a plushie</h2>
+    <div class="cols">
+      <div class="card tw"><span class="plat tw">Twitch</span><b>Subscribers get one free</b><p>You get a random one right away. Pick your own with <code>!claim name</code>. It's yours while you're subbed.</p></div>
+      <div class="card yt"><span class="plat yt">YouTube</span><b>Members get one free</b><p>Same as subs: a random one, then <code>!claim name</code> to choose. It's yours while you're a member.</p></div>
+      <div class="card"><span class="plat both">Everyone else</span><b>Buy one with points</b><p>Twitch: the channel points reward. YouTube: <code>!buyplush name</code>. It's yours for 7 days, renew it in the last 2 hours. <code>!seats</code> tells you how many seats are free for buyers right now. If there are none you can still buy, it just waits for a seat.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">2</span>The room has 67 seats</h2>
+    <div class="seats" id="seats" aria-label="52 Twitch seats and 15 YouTube seats"></div>
+    <div class="legend"><span><i style="background:var(--tw)"></i>52 for Twitch</span><span><i style="background:var(--yt)"></i>15 for YouTube</span></div>
+    <p class="rule">If one platform can't fill its seats, the other one borrows them. They're given back as soon as people from that platform show up.</p>
+  </section>
+
+  <section>
+    <h2><span class="n">3</span>Who sits first</h2>
+    <p class="rule">If you're active and already sitting, your seat is yours. Nobody can push you out.</p>
+    <p class="muted">Every other seat is handed out in this order, on each platform:</p>
+    <div class="tiers">
+      <div class="tier t1"><span class="rank">1</span><div><b>Active subs &amp; members</b><p>Chatted, used a command or redeemed something in the last 7 days.</p></div><img src="thumbs/hoshino.png" alt=""></div>
+      <div class="tier t2"><span class="rank">2</span><div><b>Buyers</b><p>Bought a plushie with channel points or Cloudbot points. Buying counts as being active.</p></div><img src="thumbs/momoi.png" alt=""></div>
+      <div class="tier t3"><span class="rank">3</span><div><b>Other subs &amp; members</b><p>Haven't been around in the last 7 days. They fill whatever is left.</p></div><img src="thumbs/shiroko.png" alt=""></div>
+    </div>
+    <p class="muted">Inactive people sitting in the room can lose their seat to someone higher on this list.</p>
+  </section>
+
+  <section>
+    <h2><span class="n">4</span>Example: the room is full</h2>
+    <div class="flow">
+      <div class="step wait"><span class="day">DAY 1</span><img src="thumbs/shiroko.png" alt=""><p>Shiroko is a sub but hasn't chatted in a while<small>she's in the last free seat (group 3)</small></p></div>
+      <div class="step buy"><span class="day">DAY 2</span><div class="duo"><img src="thumbs/momoi.png" alt=""><img class="dim" src="thumbs/shiroko.png" alt=""></div><p>Momoi buys a plushie<small>buyers come before inactive subs, so she takes Shiroko's seat</small></p></div>
+      <div class="step wait"><span class="day">DAY 3</span><div class="duo"><img src="thumbs/hoshino.png" alt=""><img src="thumbs/momoi.png" alt=""></div><p>Hoshino, a sub, comes back and chats<small>Momoi is active and sitting, so she keeps her seat. Hoshino waits</small></p></div>
+      <div class="step good"><span class="day">DAY 9</span><div class="duo"><img src="thumbs/hoshino.png" alt=""><img class="dim" src="thumbs/momoi.png" alt=""></div><p>Momoi hasn't chatted for 7 days<small>she's not active anymore, so Hoshino (active sub) gets the seat</small></p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">5</span>Special cases</h2>
+    <div class="cols">
+      <div class="card"><b>Bought one, then got a sub or membership?</b><p>Your bought plushie turns into your sub/member plushie right away. Same plushie, same seat.</p></div>
+      <div class="card"><b>Subbed but the room is full?</b><p>You still get your plushie. It waits outside (in the physics room it lands on the floor) until a seat frees up.</p></div>
+      <div class="card"><b>Getting a gifted sub</b><p>Gives you a plushie, but doesn't make you active. Chat once and you are!</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">6</span>Commands</h2>
+    <div class="cmds">
+      <div><code>!plushies</code><span>The plushies nobody has claimed</span></div>
+      <div><code>!claim name</code><span>Pick or swap your plushie</span></div>
+      <div><code>!myplush</code><span>Which one you have, and time left</span></div>
+      <div><code>!seats</code><span>How many seats are free if you buy now</span></div>
+      <div><code>!snipe name</code><span>When a taken plushie frees up</span></div>
+      <div><code>!flip</code><span>Move your plushie to another seat</span></div>
+    </div>
+  </section>
+
+  <footer>The numbers here are the current settings (67 seats, 52 Twitch, 15 YouTube, 7 days) and can change.</footer>
+</div>
+<script>
+const s = document.getElementById('seats');
+for (let i = 0; i < 67; i++) { const d = document.createElement('div'); d.className = 'seat ' + (i < 52 ? 'tw' : 'yt'); s.appendChild(d); }
+</script>
+
+</body>
+</html>

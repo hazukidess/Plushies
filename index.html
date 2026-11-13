@@ -33,6 +33,9 @@ h1 span{color:var(--accent)}
 .how div{background:var(--shelf);border:1.5px solid var(--line);border-radius:16px;padding:12px 14px;min-width:0}
 .how b{display:block;font-family:var(--display);font-weight:600;font-size:17px;margin-bottom:2px}
 .how p{margin:0;color:var(--muted);font-size:14.5px;font-weight:700}
+.guide-link{justify-self:start;font-family:var(--display);font-weight:600;font-size:17px;color:var(--accent-ink);background:var(--accent);text-decoration:none;border-radius:999px;padding:9px 18px}
+.guide-link:hover{filter:brightness(1.05)}
+.guide-link:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
 code{font-family:var(--mono);font-size:.92em;background:var(--tag);color:var(--accent);padding:1px 6px;border-radius:6px;white-space:nowrap}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
 .bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
@@ -70,10 +73,11 @@ footer{margin-top:28px;color:var(--muted);font-weight:700;font-size:14.5px;displ
     <h1>The Plushie <span>Collection</span></h1>
     <p class="lede">Every plushie that can sit in the stream's plushie room. Find one you like and type its name in chat. Tap a plushie to copy its command.</p>
     <div class="how">
-      <div><b>Subscribers (Twitch)</b><p>You get one for free. Pick yours with <code>!claim name</code></p></div>
-      <div><b>Not a sub?</b><p>Twitch: the channel points reward. YouTube: <code>!buyplush name</code>. Lasts 7 days.</p></div>
+      <div><b>Twitch subs &amp; YouTube members</b><p>You get one for free. Pick yours with <code>!claim name</code></p></div>
+      <div><b>Not a sub or member?</b><p>Twitch: the channel points reward. YouTube: <code>!buyplush name</code>. Lasts 7 days.</p></div>
       <div><b>Is it free right now?</b><p><code>!plushies</code> lists the free ones. <code>!snipe name</code> tells you when a taken one frees up.</p></div>
     </div>
+    <a class="guide-link" href="howitworks.html" id="howLink">How does the plushie room work? →</a>
   </header>
 
   <div class="bar">

@@ -110,7 +110,7 @@ footer{color:var(--muted);font-weight:700;font-size:14px;text-align:center}
     <div class="cols">
       <div class="card tw"><span class="plat tw">Twitch</span><b>Subscribers get one free</b><p>You get a random one right away. Pick your own with <code>!claim name</code>. It's yours while you're subbed.</p></div>
       <div class="card yt"><span class="plat yt">YouTube</span><b>Members get one free</b><p>Same as subs: a random one, then <code>!claim name</code> to choose. It's yours while you're a member.</p></div>
-      <div class="card"><span class="plat both">Everyone else</span><b>Buy one with points</b><p>Twitch: the channel points reward. YouTube: <code>!buyplush name</code>. It's yours for 7 days, renew it in the last 2 hours. <code>!seats</code> tells you how many seats are free for buyers right now. If there are none you can still buy, it just waits for a seat.</p></div>
+      <div class="card"><span class="plat both">Everyone else</span><b>Buy one with points</b><p>Twitch: the channel points reward. YouTube: <code>!buyplush name</code>. It's yours for 7 days, renew it in the last 2 hours. <code>!seats</code> tells you how many seats a buyer would get right now. If there are none you can still buy, it just waits for a seat.</p></div>
     </div>
   </section>
 
@@ -118,7 +118,11 @@ footer{color:var(--muted);font-weight:700;font-size:14px;text-align:center}
     <h2><span class="n">2</span>The room has 67 seats</h2>
     <div class="seats" id="seats" aria-label="52 Twitch seats and 15 YouTube seats"></div>
     <div class="legend"><span><i style="background:var(--tw)"></i>52 for Twitch</span><span><i style="background:var(--yt)"></i>15 for YouTube</span></div>
-    <p class="rule">If one platform can't fill its seats, the other one borrows them. They're given back as soon as people from that platform show up.</p>
+    <p class="rule">If one platform can't fill its seats, the other one borrows them. Getting a borrowed seat back:</p>
+    <div class="cols">
+      <div class="card"><b>A new sub or member</b><p>Always takes one borrowed seat back.</p></div>
+      <div class="card"><b>A new buyer</b><p>Only takes it back from someone who isn't active. Active borrowers keep the seat.</p></div>
+    </div>
   </section>
 
   <section>
@@ -158,7 +162,7 @@ footer{color:var(--muted);font-weight:700;font-size:14px;text-align:center}
       <div><code>!plushies</code><span>The plushies nobody has claimed</span></div>
       <div><code>!claim name</code><span>Pick or swap your plushie</span></div>
       <div><code>!myplush</code><span>Which one you have, and time left</span></div>
-      <div><code>!seats</code><span>How many seats are free if you buy now</span></div>
+      <div><code>!seats</code><span>Seats you'd get if you sub/join or buy now</span></div>
       <div><code>!snipe name</code><span>When a taken plushie frees up</span></div>
       <div><code>!flip</code><span>Move your plushie to another seat</span></div>
     </div>
